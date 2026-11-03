@@ -40,6 +40,7 @@ describe('dark mode button', () => {
                 </form>
                 <p id="error-message"></p>
                 <ul class="todo-list" id="todo-list"></ul>
+                <input type="color" id="color" value="#f4f4f4">
             </div>
         `
         await import('./main')

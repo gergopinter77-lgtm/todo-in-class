@@ -14,6 +14,7 @@ const todoForm = document.querySelector('.todo-form') as HTMLFormElement
 const todoList = document.getElementById('todo-list') as HTMLUListElement
 const errorMessage = document.getElementById('error-message') as HTMLParagraphElement
 const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLButtonElement
+const colorPicker = document.getElementById('color') as HTMLInputElement
 
 const addTodo = (text:string):void => {
   const newTodo: Todo = {
@@ -70,4 +71,9 @@ const removeTodo = (id:number):void => {
 
 darkModeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode')
+})
+
+// update the page background live while a color is being picked
+colorPicker.addEventListener('input', () => {
+  document.body.style.setProperty('--body-background-color', colorPicker.value)
 })

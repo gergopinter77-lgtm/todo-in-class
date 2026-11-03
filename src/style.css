@@ -127,3 +127,30 @@ h1 {
   margin-top: 5px;
   display: none;
 }
+
+.color-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9em;
+}
+#color {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--input-border-color);
+  border-radius: 3px;
+  background: none;
+  cursor: pointer;
+}
+#color::-webkit-color-swatch-wrapper {
+  padding: 3px;
+}
+#color::-webkit-color-swatch {
+  border: none;
+  border-radius: 2px;
+}
+#color::-moz-color-swatch {
+  border: none;
+  border-radius: 2px;
+}
