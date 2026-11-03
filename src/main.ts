@@ -39,21 +39,32 @@ const formatDueDate = (dueDate:string):string => {
   return new Date(year, month - 1, day).toLocaleDateString()
 }
 
+// overdue means the due date was before today and the todo isn't done
+const isOverdue = (todo:Todo):boolean => {
+  if (todo.completed || todo.dueDate === '') return false
+  const now = new Date()
+  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`
+  // 'YYYY-MM-DD' strings sort the same way the dates do, so they can be compared directly
+  return todo.dueDate < today
+}
+
 const renderTodos = ():void => {
   // clear the current list
   todoList.innerHTML = '';
 
   todos.forEach(todo => {
     const li = document.createElement('li')
-    // the completed class is the hook for styling done todos
-    li.className = todo.completed ? 'todo-item completed' : 'todo-item'
+    // the completed and overdue classes are the hooks for styling those todos
+    li.className = 'todo-item'
+    if (todo.completed) li.classList.add('completed')
+    if (isOverdue(todo)) li.classList.add('overdue')
     li.innerHTML = `
       <input type="checkbox" ${todo.completed ? 'checked' : ''}>
       <div>
-        <span>${todo.text}</span>
+        <span class="todo-text">${todo.text}</span>
         <div class="todo-dates">
-          Created ${todo.createdAt.toLocaleDateString()}
-          ${todo.dueDate ? ` · Due ${formatDueDate(todo.dueDate)}` : ''}
+          <span>Created ${todo.createdAt.toLocaleDateString()}</span>
+          ${todo.dueDate ? `<span class="todo-due">Due ${formatDueDate(todo.dueDate)}</span>` : ''}
         </div>
       </div>
       <button>Remove</button>
