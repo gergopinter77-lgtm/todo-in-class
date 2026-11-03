@@ -70,3 +70,12 @@ describe('dark mode button', () => {
         expect(document.body.classList.contains('dark-mode')).toBe(false)
     })
 })
+
+describe('background color picker', () => {
+    it('should change the page background to the picked color', () => {
+        const colorPicker = document.getElementById('color') as HTMLInputElement
+        colorPicker.value = '#ff8800'
+        colorPicker.dispatchEvent(new Event('input'))
+        expect(document.body.style.getPropertyValue('--body-background-color')).toBe('#ff8800')
+    })
+})
