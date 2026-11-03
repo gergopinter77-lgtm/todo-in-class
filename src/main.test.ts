@@ -40,6 +40,7 @@ describe('dark mode button', () => {
                 </form>
                 <p id="error-message"></p>
                 <ul class="todo-list" id="todo-list"></ul>
+                <input type="color" id="color" value="#f4f4f4">
             </div>
         `
         await import('./main')
@@ -67,5 +68,14 @@ describe('dark mode button', () => {
         clickToggle()
         clickToggle()
         expect(document.body.classList.contains('dark-mode')).toBe(false)
+    })
+})
+
+describe('background color picker', () => {
+    it('should change the page background to the picked color', () => {
+        const colorPicker = document.getElementById('color') as HTMLInputElement
+        colorPicker.value = '#ff8800'
+        colorPicker.dispatchEvent(new Event('input'))
+        expect(document.body.style.getPropertyValue('--body-background-color')).toBe('#ff8800')
     })
 })
