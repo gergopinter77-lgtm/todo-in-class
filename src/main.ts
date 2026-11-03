@@ -13,6 +13,7 @@ const todoInput = document.getElementById('todo-input') as HTMLInputElement
 const todoForm = document.querySelector('.todo-form') as HTMLFormElement
 const todoList = document.getElementById('todo-list') as HTMLUListElement
 const errorMessage = document.getElementById('error-message') as HTMLParagraphElement
+const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLButtonElement
 
 const addTodo = (text:string):void => {
   const newTodo: Todo = {
@@ -66,3 +67,7 @@ const removeTodo = (id:number):void => {
   todos = todos.filter(todo => todo.id !== id)
   renderTodos()
 }
+
+darkModeToggle.addEventListener('click', () => {
+  document.body.classList.toggle('dark-mode')
+})
