@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeAll, beforeEach } from 'vitest'
 
 interface Todo {
     id: number;
@@ -26,5 +26,46 @@ describe('add Todo', () => {
         expect(result.length).toBe(1)
         expect(result[0].text).toBe('Test todo')
         expect(result[0].completed).toBe(false)
+    })
+})
+describe('dark mode button', () => {
+    beforeAll(async () => {
+        // main.ts looks up its elements when it loads, so the markup has to exist first
+        document.body.innerHTML = `
+            <div class="container">
+                <button type="button" id="dark-mode-toggle">Dark Mode</button>
+                <form class="todo-form">
+                    <input type="text" id="todo-input">
+                    <button type="submit">Add</button>
+                </form>
+                <p id="error-message"></p>
+                <ul class="todo-list" id="todo-list"></ul>
+            </div>
+        `
+        await import('./main')
+    })
+
+    beforeEach(() => {
+        document.body.classList.remove('dark-mode')
+    })
+
+    const clickToggle = () => {
+        const button = document.getElementById('dark-mode-toggle') as HTMLButtonElement
+        button.click()
+    }
+
+    it('should start in light mode', () => {
+        expect(document.body.classList.contains('dark-mode')).toBe(false)
+    })
+
+    it('should turn on dark mode when clicked', () => {
+        clickToggle()
+        expect(document.body.classList.contains('dark-mode')).toBe(true)
+    })
+
+    it('should turn dark mode off when clicked again', () => {
+        clickToggle()
+        clickToggle()
+        expect(document.body.classList.contains('dark-mode')).toBe(false)
     })
 })
