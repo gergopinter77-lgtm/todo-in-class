@@ -10,6 +10,8 @@ interface Todo {
 }
 
 let todos: Todo[] = [];
+// counts up so every todo gets its own id, Date.now() repeats when two are added in the same millisecond
+let nextId = 1;
 
 const todoInput = document.getElementById('todo-input') as HTMLInputElement
 const dueDateInput = document.getElementById('due-date') as HTMLInputElement
@@ -21,7 +23,7 @@ const colorPicker = document.getElementById('color') as HTMLInputElement
 
 const addTodo = (text:string, dueDate:string):void => {
   const newTodo: Todo = {
-    id: Date.now(),
+    id: nextId++,
     text: text,
     completed: false,
     createdAt: new Date(),
