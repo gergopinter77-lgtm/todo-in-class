@@ -68,7 +68,6 @@ const removeTodo = (id:number):void => {
   renderTodos()
 }
 
-// toggle a class on the body; the dark mode styles will hook into it later
 darkModeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode')
 })
