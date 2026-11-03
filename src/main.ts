@@ -34,11 +34,14 @@ const renderTodos = ():void => {
 
   todos.forEach(todo => {
     const li = document.createElement('li')
-    li.className = 'todo-item'
+    // the completed class is the hook for styling done todos
+    li.className = todo.completed ? 'todo-item completed' : 'todo-item'
     li.innerHTML = `
+      <input type="checkbox" ${todo.completed ? 'checked' : ''}>
       <span>${todo.text}</span>
       <button>Remove</button>
     `
+    addCheckboxListener(li, todo.id)
     addRemoveButtonListener(li, todo.id)
     todoList.appendChild(li)
   })
@@ -66,6 +69,18 @@ const addRemoveButtonListener = (li:HTMLLIElement, id:number):void => {
 
 const removeTodo = (id:number):void => {
   todos = todos.filter(todo => todo.id !== id)
+  renderTodos()
+}
+
+
+const addCheckboxListener = (li:HTMLLIElement, id:number):void => {
+  const checkbox = li.querySelector('input[type="checkbox"]')
+  checkbox?.addEventListener('change', () => toggleTodo(id))
+}
+
+
+const toggleTodo = (id:number):void => {
+  todos = todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo)
   renderTodos()
 }
 
