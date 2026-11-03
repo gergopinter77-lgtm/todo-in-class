@@ -5,27 +5,38 @@ interface Todo {
   id: number;
   text: string;
   completed: boolean;
+  createdAt: Date;
+  dueDate: string; // 'YYYY-MM-DD' from the date picker, '' when none was picked
 }
 
 let todos: Todo[] = [];
 
 const todoInput = document.getElementById('todo-input') as HTMLInputElement
+const dueDateInput = document.getElementById('due-date') as HTMLInputElement
 const todoForm = document.querySelector('.todo-form') as HTMLFormElement
 const todoList = document.getElementById('todo-list') as HTMLUListElement
 const errorMessage = document.getElementById('error-message') as HTMLParagraphElement
 const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLButtonElement
 const colorPicker = document.getElementById('color') as HTMLInputElement
 
-const addTodo = (text:string):void => {
+const addTodo = (text:string, dueDate:string):void => {
   const newTodo: Todo = {
     id: Date.now(),
     text: text,
     completed: false,
+    createdAt: new Date(),
+    dueDate: dueDate,
   }
   todos.push(newTodo)
   console.log(`Todo added: ${todos}`)
 
   renderTodos();
+}
+
+const formatDueDate = (dueDate:string):string => {
+  // build the date from its parts, new Date('YYYY-MM-DD') reads it as UTC and can be a day off
+  const [year, month, day] = dueDate.split('-').map(Number)
+  return new Date(year, month - 1, day).toLocaleDateString()
 }
 
 const renderTodos = ():void => {
@@ -38,7 +49,13 @@ const renderTodos = ():void => {
     li.className = todo.completed ? 'todo-item completed' : 'todo-item'
     li.innerHTML = `
       <input type="checkbox" ${todo.completed ? 'checked' : ''}>
-      <span>${todo.text}</span>
+      <div>
+        <span>${todo.text}</span>
+        <div class="todo-dates">
+          Created ${todo.createdAt.toLocaleDateString()}
+          ${todo.dueDate ? ` · Due ${formatDueDate(todo.dueDate)}` : ''}
+        </div>
+      </div>
       <button>Remove</button>
     `
     addCheckboxListener(li, todo.id)
@@ -55,8 +72,9 @@ todoForm.addEventListener('submit', (event: Event) => {
   const text = todoInput.value.trim()
 
   if (text !== '') {
-    addTodo(text)
-    todoInput.value = '' //clear 
+    addTodo(text, dueDateInput.value)
+    todoInput.value = '' //clear
+    dueDateInput.value = ''
   }
 })
 
