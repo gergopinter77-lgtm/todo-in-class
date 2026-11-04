@@ -40,6 +40,7 @@ describe('dark mode button', () => {
                     <button type="submit">Add</button>
                 </form>
                 <p id="error-message"></p>
+                <button type="button" id="sort-status">Sort by status</button>
                 <ul class="todo-list" id="todo-list"></ul>
                 <button type="button" id="clear-all">Clear all</button>
                 <input type="color" id="color" value="#f4f4f4">

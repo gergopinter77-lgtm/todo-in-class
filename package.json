@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "e2e": "testcafe",
+    "e2e": "node --no-deprecation scripts/run-e2e.cjs",
     "e2e:remote": "testcafe remote"
   },
   "devDependencies": {
