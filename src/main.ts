@@ -20,6 +20,7 @@ const todoList = document.getElementById('todo-list') as HTMLUListElement
 const errorMessage = document.getElementById('error-message') as HTMLParagraphElement
 const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLButtonElement
 const colorPicker = document.getElementById('color') as HTMLInputElement
+const clearAllButton = document.getElementById('clear-all') as HTMLButtonElement
 
 const addTodo = (text:string, dueDate:string):void => {
   const newTodo: Todo = {
@@ -114,6 +115,14 @@ const toggleTodo = (id:number):void => {
   todos = todos.map(todo => todo.id === id ? { ...todo, completed: !todo.completed } : todo)
   renderTodos()
 }
+
+
+const clearAllTodos = ():void => {
+  todos = []
+  renderTodos()
+}
+
+clearAllButton.addEventListener('click', clearAllTodos)
 
 darkModeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode')
