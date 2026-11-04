@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    // TestCafe compiles the tests with the project's TypeScript (see .testcaferc.cjs),
+    // and its default settings use an option TypeScript 6 warns about
+    "ignoreDeprecations": "6.0",
+    "skipLibCheck": true
+  }
+}
