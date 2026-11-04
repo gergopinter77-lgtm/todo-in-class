@@ -222,6 +222,37 @@ h1 {
   background: var(--todo-item-background-color);
 }
 
+/* export and import buttons share one row, split evenly, above the color picker */
+.data-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 15px;
+  padding-top: 15px;
+  border-top: 1px solid var(--todo-item-border-color);
+}
+.data-actions button {
+  flex: 1;
+  padding: 8px 6px;
+  border: 1px solid var(--input-border-color);
+  background: var(--input-background-color);
+  color: var(--text-color);
+  border-radius: 3px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.data-actions button:hover {
+  background: var(--todo-item-background-color);
+}
+/* import brings data in, so it gets the green accent instead of the plain look */
+.data-actions #import-todos {
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+.data-actions #import-todos:hover {
+  background: var(--accent-color);
+  color: #fff;
+}
+
 
 .input-error {
   border: 2px solid red;
