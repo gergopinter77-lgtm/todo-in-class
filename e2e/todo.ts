@@ -11,6 +11,8 @@ const darkModeToggle = Selector('#dark-mode-toggle')
 const body = Selector('body')
 const clearAllButton = Selector('#clear-all')
 const sortStatusButton = Selector('#sort-status')
+const exportJsonButton = Selector('#export-todos')
+const exportPdfButton = Selector('#export-pdf')
 
 // dates are worked out in the browser so they use the same time zone and format as the app
 const getDateString = ClientFunction((daysFromToday: number) => {
@@ -199,4 +201,102 @@ test('sorts todos by status: in progress, then overdue, then done', async t => {
         .expect(todoItems.nth(1).hasClass('overdue')).ok()
         .expect(todoItems.nth(2).find('.todo-text').innerText).eql('Done todo')
         .expect(todoItems.nth(2).hasClass('completed')).ok()
+})
+
+// downloads can't be read back from the browser, so catch the file and its name before it's saved
+const catchDownloads = ClientFunction(() => {
+    const win = window as any
+    win.caughtDownload = null
+    URL.createObjectURL = (blob: Blob) => {
+        win.caughtDownload = { ...win.caughtDownload, blob }
+        return 'blob:caught'
+    }
+    URL.revokeObjectURL = () => {}
+    const catchClick = function (this: HTMLAnchorElement) {
+        win.caughtDownload = { ...win.caughtDownload, name: this.download }
+        return true
+    }
+    // the JSON export calls click(), the PDF library dispatches a click event instead
+    HTMLAnchorElement.prototype.click = catchClick
+    const dispatchEvent = HTMLAnchorElement.prototype.dispatchEvent
+    HTMLAnchorElement.prototype.dispatchEvent = function (event: Event) {
+        return event.type === 'click' ? catchClick.call(this) : dispatchEvent.call(this, event)
+    }
+})
+
+// no async/await here, TestCafe doesn't allow it in code that runs in the browser
+const getCaughtDownload = ClientFunction(() => {
+    const caught = (window as any).caughtDownload
+    if (!caught || !caught.name || !caught.blob) return null
+    return caught.blob.text().then((text: string) => ({ name: caught.name as string, size: caught.blob.size as number, text }))
+})
+
+test('exports the todos as a JSON file', async t => {
+    await addTodo(t, 'Buy milk')
+    await addTodo(t, 'Pay rent', await getDateString(5))
+    await t.click(todoItems.nth(0).find('input[type="checkbox"]'))
+    await catchDownloads()
+
+    await t.click(exportJsonButton)
+
+    await t.expect(getCaughtDownload()).ok('no file was downloaded')
+    const download = await getCaughtDownload()
+    const exported = JSON.parse(download!.text)
+    await t
+        .expect(download!.name).eql('todos.json')
+        .expect(exported.length).eql(2)
+        .expect(exported[0].text).eql('Buy milk')
+        .expect(exported[0].completed).ok()
+        .expect(exported[1].text).eql('Pay rent')
+        .expect(exported[1].dueDate).eql(await getDateString(5))
+})
+
+test('imports todos from a JSON file, replacing the list', async t => {
+    await addTodo(t, 'Old todo')
+
+    await t.setFilesToUpload('#import-file', ['./fixtures/todos.json'])
+
+    await t
+        .expect(todoItems.count).eql(3)
+        .expect(todoItems.nth(0).find('.todo-text').innerText).eql('Imported todo')
+        .expect(todoItems.nth(0).find('.todo-due').innerText).eql(`Due ${await getDisplayedDate('2099-12-31')}`)
+        .expect(todoItems.nth(1).hasClass('completed')).ok()
+        .expect(todoItems.nth(2).hasClass('overdue')).ok()
+})
+
+test('keeps the list and shows a message for a broken JSON file', async t => {
+    await t.setNativeDialogHandler(() => true)
+    await addTodo(t, 'Keep me')
+
+    await t.setFilesToUpload('#import-file', ['./fixtures/broken.json'])
+
+    // the alert comes a moment after the file is read, so wait for it
+    let history = await t.getNativeDialogHistory()
+    for (let i = 0; i < 50 && history.length === 0; i++) {
+        await t.wait(100)
+        history = await t.getNativeDialogHistory()
+    }
+    await t.expect(history.length).eql(1)
+    const [dialog] = history
+    await t
+        .expect(dialog.type).eql('alert')
+        .expect(dialog.text).eql('broken.json is not a valid JSON file.')
+        .expect(todoItems.count).eql(1)
+        .expect(todoItems.nth(0).find('.todo-text').innerText).eql('Keep me')
+})
+
+test('exports the todos as a PDF file', async t => {
+    await addTodo(t, 'Buy milk')
+    await addTodo(t, 'Bevásárlás: tőzsér, gyümölcs', await getDateString(5))
+    await catchDownloads()
+
+    await t.click(exportPdfButton)
+
+    // the PDF libraries and fonts load on the first export, so give it a moment
+    await t.expect(getCaughtDownload()).ok('no file was downloaded', { timeout: 15000 })
+    const download = await getCaughtDownload()
+    await t
+        .expect(download!.name).eql('todos.pdf')
+        .expect(download!.text.startsWith('%PDF')).ok()
+        .expect(download!.size).gt(1000)
 })
