@@ -117,7 +117,12 @@ const toggleTodo = (id:number):void => {
 }
 
 
+const clearAllTodos = ():void => {
+  todos = []
+  renderTodos()
+}
 
+clearAllButton.addEventListener('click', clearAllTodos)
 
 darkModeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode')
