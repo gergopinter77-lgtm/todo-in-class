@@ -127,3 +127,84 @@ describe('clear all button', () => {
         expect(getTodoItems().length).toBe(0)
     })
 })
+
+describe('sort by status button', () => {
+    // 'YYYY-MM-DD' for a day relative to today, the same format the date picker gives
+    const getDateString = (daysFromToday: number) => {
+        const date = new Date()
+        date.setDate(date.getDate() + daysFromToday)
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+        return `${date.getFullYear()}-${month}-${day}`
+    }
+
+    const addTodoThroughForm = (text: string, dueDate = '') => {
+        const todoInput = document.getElementById('todo-input') as HTMLInputElement
+        const dueDateInput = document.getElementById('due-date') as HTMLInputElement
+        const todoForm = document.querySelector('.todo-form') as HTMLFormElement
+        todoInput.value = text
+        dueDateInput.value = dueDate
+        todoForm.requestSubmit()
+    }
+
+    const tickTodo = (text: string) => {
+        const item = [...document.querySelectorAll('.todo-item')]
+            .find(li => li.querySelector('.todo-text')?.textContent === text)
+        const checkbox = item?.querySelector('input[type="checkbox"]') as HTMLInputElement
+        checkbox.click()
+    }
+
+    const clickSort = () => {
+        const button = document.getElementById('sort-status') as HTMLButtonElement
+        button.click()
+    }
+
+    const getTodoTexts = () =>
+        [...document.querySelectorAll('.todo-item .todo-text')].map(span => span.textContent)
+
+    beforeEach(() => {
+        const clearAllButton = document.getElementById('clear-all') as HTMLButtonElement
+        clearAllButton.click()
+    })
+
+    it('should put in progress todos first, then overdue, then done', () => {
+        addTodoThroughForm('Done')
+        addTodoThroughForm('Overdue', getDateString(-1))
+        addTodoThroughForm('In progress')
+        tickTodo('Done')
+
+        clickSort()
+        expect(getTodoTexts()).toEqual(['In progress', 'Overdue', 'Done'])
+    })
+
+    it('should keep todos with the same status in their current order', () => {
+        addTodoThroughForm('Done A')
+        addTodoThroughForm('In progress A')
+        addTodoThroughForm('Done B')
+        addTodoThroughForm('In progress B')
+        tickTodo('Done A')
+        tickTodo('Done B')
+
+        clickSort()
+        expect(getTodoTexts()).toEqual(['In progress A', 'In progress B', 'Done A', 'Done B'])
+    })
+
+    it('should count todos due today or later as in progress', () => {
+        addTodoThroughForm('Overdue', getDateString(-1))
+        addTodoThroughForm('Due today', getDateString(0))
+        addTodoThroughForm('Due next week', getDateString(7))
+
+        clickSort()
+        expect(getTodoTexts()).toEqual(['Due today', 'Due next week', 'Overdue'])
+    })
+
+    it('should add new todos at the bottom after sorting', () => {
+        addTodoThroughForm('Done')
+        addTodoThroughForm('In progress')
+        tickTodo('Done')
+
+        clickSort()
+        addTodoThroughForm('New todo')
+        expect(getTodoTexts()).toEqual(['In progress', 'Done', 'New todo'])
+    })
+})

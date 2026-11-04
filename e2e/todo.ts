@@ -10,6 +10,7 @@ const todoItems = Selector('.todo-item')
 const darkModeToggle = Selector('#dark-mode-toggle')
 const body = Selector('body')
 const clearAllButton = Selector('#clear-all')
+const sortStatusButton = Selector('#sort-status')
 
 // dates are worked out in the browser so they use the same time zone and format as the app
 const getDateString = ClientFunction((daysFromToday: number) => {
@@ -183,4 +184,19 @@ test('adds new todos after Clear all', async t => {
     await t
         .expect(todoItems.count).eql(1)
         .expect(todoItems.nth(0).find('.todo-text').innerText).eql('New todo')
+})
+
+test('sorts todos by status: in progress, then overdue, then done', async t => {
+    await addTodo(t, 'Done todo')
+    await addTodo(t, 'Overdue todo', await getDateString(-1))
+    await addTodo(t, 'In progress todo')
+    await t.click(todoItems.nth(0).find('input[type="checkbox"]'))
+
+    await t
+        .click(sortStatusButton)
+        .expect(todoItems.nth(0).find('.todo-text').innerText).eql('In progress todo')
+        .expect(todoItems.nth(1).find('.todo-text').innerText).eql('Overdue todo')
+        .expect(todoItems.nth(1).hasClass('overdue')).ok()
+        .expect(todoItems.nth(2).find('.todo-text').innerText).eql('Done todo')
+        .expect(todoItems.nth(2).hasClass('completed')).ok()
 })
