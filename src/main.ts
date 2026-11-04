@@ -21,6 +21,7 @@ const errorMessage = document.getElementById('error-message') as HTMLParagraphEl
 const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLButtonElement
 const colorPicker = document.getElementById('color') as HTMLInputElement
 const clearAllButton = document.getElementById('clear-all') as HTMLButtonElement
+const sortStatusButton = document.getElementById('sort-status') as HTMLButtonElement
 
 const addTodo = (text:string, dueDate:string):void => {
   const newTodo: Todo = {
@@ -123,6 +124,22 @@ const clearAllTodos = ():void => {
 }
 
 clearAllButton.addEventListener('click', clearAllTodos)
+
+
+// in progress first, then overdue, then done
+const getStatusOrder = (todo:Todo):number => {
+  if (todo.completed) return 2
+  if (isOverdue(todo)) return 1
+  return 0
+}
+
+const sortTodosByStatus = ():void => {
+  // sort keeps todos with the same status in their current order
+  todos = [...todos].sort((a, b) => getStatusOrder(a) - getStatusOrder(b))
+  renderTodos()
+}
+
+sortStatusButton.addEventListener('click', sortTodosByStatus)
 
 darkModeToggle.addEventListener('click', () => {
   document.body.classList.toggle('dark-mode')
