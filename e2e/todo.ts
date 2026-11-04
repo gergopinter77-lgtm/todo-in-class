@@ -9,6 +9,7 @@ const addButton = Selector('.todo-form button')
 const todoItems = Selector('.todo-item')
 const darkModeToggle = Selector('#dark-mode-toggle')
 const body = Selector('body')
+const clearAllButton = Selector('#clear-all')
 
 // dates are worked out in the browser so they use the same time zone and format as the app
 const getDateString = ClientFunction((daysFromToday: number) => {
@@ -160,4 +161,26 @@ test('changes the page background with the color picker', async t => {
     await t
         .expect(getBodyStyle('--body-background-color')).eql('#ff8800')
         .expect(body.getStyleProperty('background-color')).eql('rgb(255, 136, 0)')
+})
+
+test('clears every todo with Clear all', async t => {
+    await addTodo(t, 'Plain todo')
+    await addTodo(t, 'Overdue todo', await getDateString(-1))
+    await addTodo(t, 'Done todo')
+    await t.click(todoItems.nth(2).find('input[type="checkbox"]'))
+
+    await t
+        .expect(todoItems.count).eql(3)
+        .click(clearAllButton)
+        .expect(todoItems.count).eql(0)
+})
+
+test('adds new todos after Clear all', async t => {
+    await addTodo(t, 'Old todo')
+    await t.click(clearAllButton)
+    await addTodo(t, 'New todo')
+
+    await t
+        .expect(todoItems.count).eql(1)
+        .expect(todoItems.nth(0).find('.todo-text').innerText).eql('New todo')
 })
