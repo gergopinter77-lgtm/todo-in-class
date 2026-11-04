@@ -1,7 +1,7 @@
 const path = require('path')
 
 module.exports = {
-    browsers: ['chrome:headless'],
+    // no browsers here: npm run e2e opens Chrome itself (scripts/run-e2e.cjs), npm run e2e:remote waits for one
     src: ['e2e/'],
     hostname: 'localhost',
     // start the app on its own port for the tests and stop it when they finish
