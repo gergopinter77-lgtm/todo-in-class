@@ -6,10 +6,13 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "e2e": "testcafe",
+    "e2e:remote": "testcafe remote"
   },
   "devDependencies": {
     "jsdom": "^30.1.2",
+    "testcafe": "^3.7.7",
     "typescript": "~6.0.2",
     "vite": "^8.3.0",
     "vitest": "^5.0.3"
