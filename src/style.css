@@ -17,25 +17,41 @@
   --container-padding: 20px;
   --container-border-radius: 5px;
   --container-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  --container-width: 300px;
+  --container-width: 360px;
 
   --text-color: #213547;
+  --muted-text-color: #6b7280;
   --todo-item-background-color: #f9f9f9;
   --todo-item-border-color: #ddd;
   --input-background-color: #fff;
   --input-border-color: #ccc;
+
+  --accent-color: #28a745;
+  --completed-background-color: #e6f4ea;
+  --completed-text-color: #1e7e34;
+
+  --overdue-color: #dc3545;
+  --overdue-background-color: #fdecee;
+  --overdue-text-color: #b02a37;
 }
 
 /* dark mode overrides, toggled by the dark mode button */
 body.dark-mode {
+  /* makes built-in controls like the date picker's calendar icon light too */
+  color-scheme: dark;
   --body-background-color: #121212;
   --container-background-color: #1e1e1e;
   --container-box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
   --text-color: rgba(255, 255, 255, 0.87);
+  --muted-text-color: #9ca3af;
   --todo-item-background-color: #2a2a2a;
   --todo-item-border-color: #3a3a3a;
   --input-background-color: #2a2a2a;
   --input-border-color: #555;
+  --completed-background-color: #1d3a26;
+  --completed-text-color: #6fcf8a;
+  --overdue-background-color: #3d1d21;
+  --overdue-text-color: #f28b95;
 }
 
 body {
@@ -43,11 +59,13 @@ body {
   background-color: var(--body-background-color);
   color: var(--text-color);
   margin: 0;
-  padding: 0;
+  padding: 20px;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  /* min-height lets the page grow and scroll when the list gets long */
+  min-height: 100vh;
 }
 
 .container {
@@ -56,6 +74,8 @@ body {
   border-radius: var(--container-border-radius);
   box-shadow: var(--container-box-shadow);
   width: var(--container-width);
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 
@@ -75,22 +95,29 @@ h1 {
 #dark-mode-toggle:hover {
   background: var(--todo-item-background-color);
 }
+/* text box on its own row, due date and Add button share the row below */
 .todo-form {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .todo-form input {
   flex: 1;
+  min-width: 0;
   padding: 10px;
   border: 1px solid var(--input-border-color);
   border-radius: 3px;
   background: var(--input-background-color);
   color: var(--text-color);
+  font-family: inherit;
+}
+#todo-input {
+  flex-basis: 100%;
 }
 .todo-form button {
-  padding: 10px;
+  padding: 10px 16px;
   border: none;
-  background: #28a745;
+  background: var(--accent-color);
   color: #fff;
   border-radius: 3px;
   cursor: pointer;
@@ -102,17 +129,66 @@ h1 {
 .todo-item {
   background: var(--todo-item-background-color);
   padding: 10px;
-  border-bottom: 1px solid var(--todo-item-border-color);
+  margin-bottom: 6px;
+  border: 1px solid var(--todo-item-border-color);
+  border-left: 4px solid var(--todo-item-border-color);
+  border-radius: 3px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  gap: 10px;
+}
+.todo-item input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: var(--accent-color);
+  cursor: pointer;
+}
+/* the text and dates take up the space between checkbox and button */
+.todo-item > div {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.todo-dates {
+  margin-top: 2px;
+  font-size: 0.8em;
+  color: var(--muted-text-color);
+}
+/* created and due dates each get their own line */
+.todo-dates span {
+  display: block;
 }
 .todo-item button {
+  padding: 5px 10px;
   border: none;
   background: #dc3545;
   color: #fff;
   border-radius: 3px;
   cursor: pointer;
+  flex-shrink: 0;
+}
+
+.todo-item.completed {
+  background: var(--completed-background-color);
+  border-color: var(--accent-color);
+}
+.todo-item.completed .todo-text {
+  color: var(--completed-text-color);
+  text-decoration: line-through;
+}
+
+.todo-item.overdue {
+  background: var(--overdue-background-color);
+  border-color: var(--overdue-color);
+}
+.todo-item.overdue .todo-text,
+.todo-item.overdue .todo-due {
+  color: var(--overdue-text-color);
+}
+.todo-item.overdue .todo-due {
+  font-weight: 600;
 }
 
 
