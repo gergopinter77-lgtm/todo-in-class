@@ -36,10 +36,12 @@ describe('dark mode button', () => {
                 <button type="button" id="dark-mode-toggle">Dark Mode</button>
                 <form class="todo-form">
                     <input type="text" id="todo-input">
+                    <input type="date" id="due-date">
                     <button type="submit">Add</button>
                 </form>
                 <p id="error-message"></p>
                 <ul class="todo-list" id="todo-list"></ul>
+                <button type="button" id="clear-all">Clear all</button>
                 <input type="color" id="color" value="#f4f4f4">
             </div>
         `
@@ -77,5 +79,50 @@ describe('background color picker', () => {
         colorPicker.value = '#ff8800'
         colorPicker.dispatchEvent(new Event('input'))
         expect(document.body.style.getPropertyValue('--body-background-color')).toBe('#ff8800')
+    })
+})
+
+describe('clear all button', () => {
+    const addTodoThroughForm = (text: string) => {
+        const todoInput = document.getElementById('todo-input') as HTMLInputElement
+        const todoForm = document.querySelector('.todo-form') as HTMLFormElement
+        todoInput.value = text
+        todoForm.requestSubmit()
+    }
+
+    const clickClearAll = () => {
+        const button = document.getElementById('clear-all') as HTMLButtonElement
+        button.click()
+    }
+
+    const getTodoItems = () => document.querySelectorAll('.todo-item')
+
+    beforeEach(() => {
+        clickClearAll()
+    })
+
+    it('should remove every todo', () => {
+        addTodoThroughForm('One')
+        addTodoThroughForm('Two')
+        addTodoThroughForm('Three')
+        expect(getTodoItems().length).toBe(3)
+
+        clickClearAll()
+        expect(getTodoItems().length).toBe(0)
+    })
+
+    it('should let new todos be added after clearing', () => {
+        addTodoThroughForm('Old todo')
+        clickClearAll()
+        addTodoThroughForm('New todo')
+
+        const items = getTodoItems()
+        expect(items.length).toBe(1)
+        expect(items[0].querySelector('.todo-text')?.textContent).toBe('New todo')
+    })
+
+    it('should do nothing when the list is already empty', () => {
+        expect(() => clickClearAll()).not.toThrow()
+        expect(getTodoItems().length).toBe(0)
     })
 })
