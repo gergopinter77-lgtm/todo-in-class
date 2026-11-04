@@ -43,6 +43,10 @@ describe('dark mode button', () => {
                 <button type="button" id="sort-status">Sort by status</button>
                 <ul class="todo-list" id="todo-list"></ul>
                 <button type="button" id="clear-all">Clear all</button>
+                <button type="button" id="export-todos">Export JSON</button>
+                <button type="button" id="export-pdf">Export PDF</button>
+                <button type="button" id="import-todos">Import JSON</button>
+                <input type="file" id="import-file" hidden>
                 <input type="color" id="color" value="#f4f4f4">
             </div>
         `
