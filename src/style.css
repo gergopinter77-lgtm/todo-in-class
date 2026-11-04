@@ -191,6 +191,22 @@ h1 {
   font-weight: 600;
 }
 
+/* outlined instead of solid red, so it stands apart from the Remove buttons */
+#clear-all {
+  display: block;
+  margin: 0 0 15px auto;
+  padding: 6px 12px;
+  border: 1px solid var(--overdue-color);
+  background: transparent;
+  color: var(--overdue-text-color);
+  border-radius: 3px;
+  cursor: pointer;
+}
+#clear-all:hover {
+  background: var(--overdue-color);
+  color: #fff;
+}
+
 
 .input-error {
   border: 2px solid red;
