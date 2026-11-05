@@ -23,7 +23,7 @@ const todoList = document.getElementById('todo-list') as HTMLUListElement
 // const errorMessage = document.getElementById('error-message') as HTMLParagraphElement
 const darkModeToggle = document.getElementById('dark-mode-toggle') as HTMLButtonElement
 const colorPicker = document.getElementById('color') as HTMLInputElement
-const clearAllButton = document.getElementById('clear-all') as HTMLButtonElement
+const clearDoneButton = document.getElementById('clear-done') as HTMLButtonElement
 const sortStatusButton = document.getElementById('sort-status') as HTMLButtonElement
 const exportButton = document.getElementById('export-todos') as HTMLButtonElement
 const exportPdfButton = document.getElementById('export-pdf') as HTMLButtonElement
@@ -128,12 +128,13 @@ const toggleTodo = (id:number):void => {
 }
 
 
-const clearAllTodos = ():void => {
-  todos = []
+// removes the done todos, the rest stay in their current order
+const clearDoneTodos = ():void => {
+  todos = todos.filter(todo => !todo.completed)
   renderTodos()
 }
 
-clearAllButton.addEventListener('click', clearAllTodos)
+clearDoneButton.addEventListener('click', clearDoneTodos)
 
 
 // in progress first, then overdue, then done

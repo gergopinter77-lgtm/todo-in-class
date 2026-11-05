@@ -192,7 +192,7 @@ h1 {
 }
 
 /* outlined instead of solid red, so it stands apart from the Remove buttons */
-#clear-all {
+#clear-done {
   display: block;
   margin: 0 0 15px auto;
   padding: 6px 12px;
@@ -202,7 +202,7 @@ h1 {
   border-radius: 3px;
   cursor: pointer;
 }
-#clear-all:hover {
+#clear-done:hover {
   background: var(--overdue-color);
   color: #fff;
 }
