@@ -15,9 +15,9 @@ const addTodo = (todos: Todo[], text: string) => {
     return [...todos, newTodo]
 }
 
-const removeTodo = (todos: Todo[], id: number): Todo[] => {
-    return todos.filter(todo => todo.id !== id);
-}
+// const removeTodo = (todos: Todo[], id: number): Todo[] => {
+//     return todos.filter(todo => todo.id !== id);
+// }
 
 describe('add Todo', () => {
     it('should add a new todo to the list', () => {
