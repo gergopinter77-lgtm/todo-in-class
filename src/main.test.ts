@@ -42,7 +42,7 @@ describe('dark mode button', () => {
                 <p id="error-message"></p>
                 <button type="button" id="sort-status">Sort by status</button>
                 <ul class="todo-list" id="todo-list"></ul>
-                <button type="button" id="clear-all">Clear all</button>
+                <button type="button" id="clear-done">Clear done</button>
                 <button type="button" id="export-todos">Export JSON</button>
                 <button type="button" id="export-pdf">Export PDF</button>
                 <button type="button" id="import-todos">Import JSON</button>
@@ -87,48 +87,90 @@ describe('background color picker', () => {
     })
 })
 
-describe('clear all button', () => {
-    const addTodoThroughForm = (text: string) => {
+const clickClearDone = () => {
+    const button = document.getElementById('clear-done') as HTMLButtonElement
+    button.click()
+}
+
+// empties the list between tests: Clear done only removes done todos, so tick every todo first.
+// Each tick redraws the list, so look up the next unticked checkbox again every time.
+const removeAllTodos = () => {
+    // capped, so a broken checkbox fails the test instead of looping forever
+    for (let i = 0; i < 100; i++) {
+        const checkbox = document.querySelector<HTMLInputElement>('.todo-item input[type="checkbox"]:not(:checked)')
+        if (!checkbox) break
+        checkbox.click()
+    }
+    clickClearDone()
+}
+
+describe('clear done button', () => {
+    const addTodoThroughForm = (text: string, dueDate = '') => {
         const todoInput = document.getElementById('todo-input') as HTMLInputElement
+        const dueDateInput = document.getElementById('due-date') as HTMLInputElement
         const todoForm = document.querySelector('.todo-form') as HTMLFormElement
         todoInput.value = text
+        dueDateInput.value = dueDate
         todoForm.requestSubmit()
     }
 
-    const clickClearAll = () => {
-        const button = document.getElementById('clear-all') as HTMLButtonElement
-        button.click()
+    const tickTodo = (text: string) => {
+        const item = [...document.querySelectorAll('.todo-item')]
+            .find(li => li.querySelector('.todo-text')?.textContent === text)
+        const checkbox = item?.querySelector('input[type="checkbox"]') as HTMLInputElement
+        checkbox.click()
     }
 
-    const getTodoItems = () => document.querySelectorAll('.todo-item')
+    const getTodoTexts = () =>
+        [...document.querySelectorAll('.todo-item .todo-text')].map(span => span.textContent)
 
     beforeEach(() => {
-        clickClearAll()
+        removeAllTodos()
     })
 
-    it('should remove every todo', () => {
+    it('should remove only the done todos', () => {
+        addTodoThroughForm('Done A')
+        addTodoThroughForm('Not done')
+        addTodoThroughForm('Done B')
+        tickTodo('Done A')
+        tickTodo('Done B')
+
+        clickClearDone()
+        expect(getTodoTexts()).toEqual(['Not done'])
+    })
+
+    it('should keep overdue todos that are not done', () => {
+        addTodoThroughForm('Overdue', '2020-01-01')
+        addTodoThroughForm('Done')
+        tickTodo('Done')
+
+        clickClearDone()
+        expect(getTodoTexts()).toEqual(['Overdue'])
+        expect(document.querySelector('.todo-item')?.classList.contains('overdue')).toBe(true)
+    })
+
+    it('should keep the remaining todos in their order', () => {
         addTodoThroughForm('One')
         addTodoThroughForm('Two')
         addTodoThroughForm('Three')
-        expect(getTodoItems().length).toBe(3)
+        addTodoThroughForm('Four')
+        tickTodo('Two')
 
-        clickClearAll()
-        expect(getTodoItems().length).toBe(0)
+        clickClearDone()
+        expect(getTodoTexts()).toEqual(['One', 'Three', 'Four'])
     })
 
-    it('should let new todos be added after clearing', () => {
-        addTodoThroughForm('Old todo')
-        clickClearAll()
-        addTodoThroughForm('New todo')
+    it('should do nothing when no todo is done', () => {
+        addTodoThroughForm('One')
+        addTodoThroughForm('Two')
 
-        const items = getTodoItems()
-        expect(items.length).toBe(1)
-        expect(items[0].querySelector('.todo-text')?.textContent).toBe('New todo')
+        clickClearDone()
+        expect(getTodoTexts()).toEqual(['One', 'Two'])
     })
 
-    it('should do nothing when the list is already empty', () => {
-        expect(() => clickClearAll()).not.toThrow()
-        expect(getTodoItems().length).toBe(0)
+    it('should do nothing when the list is empty', () => {
+        expect(() => clickClearDone()).not.toThrow()
+        expect(getTodoTexts()).toEqual([])
     })
 })
 
@@ -167,8 +209,7 @@ describe('sort by status button', () => {
         [...document.querySelectorAll('.todo-item .todo-text')].map(span => span.textContent)
 
     beforeEach(() => {
-        const clearAllButton = document.getElementById('clear-all') as HTMLButtonElement
-        clearAllButton.click()
+        removeAllTodos()
     })
 
     it('should put in progress todos first, then overdue, then done', () => {
@@ -255,8 +296,7 @@ describe('export and import JSON', () => {
     let alertSpy: ReturnType<typeof vi.spyOn>
 
     beforeEach(() => {
-        const clearAllButton = document.getElementById('clear-all') as HTMLButtonElement
-        clearAllButton.click()
+        removeAllTodos()
         alertSpy = vi.spyOn(window, 'alert').mockImplementation(() => {})
     })
 
@@ -300,8 +340,7 @@ describe('export and import JSON', () => {
         addTodoThroughForm('Pay rent', '2026-12-01')
         const { json } = await exportAndCapture()
 
-        const clearAllButton = document.getElementById('clear-all') as HTMLButtonElement
-        clearAllButton.click()
+        removeAllTodos()
         importFile('todos.json', json)
 
         await vi.waitFor(() => expect(getTodoTexts()).toEqual(['Buy milk', 'Pay rent']))

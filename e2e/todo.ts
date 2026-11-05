@@ -9,7 +9,7 @@ const addButton = Selector('.todo-form button')
 const todoItems = Selector('.todo-item')
 const darkModeToggle = Selector('#dark-mode-toggle')
 const body = Selector('body')
-const clearAllButton = Selector('#clear-all')
+const clearDoneButton = Selector('#clear-done')
 const sortStatusButton = Selector('#sort-status')
 const exportJsonButton = Selector('#export-todos')
 const exportPdfButton = Selector('#export-pdf')
@@ -166,7 +166,7 @@ test('changes the page background with the color picker', async t => {
         .expect(body.getStyleProperty('background-color')).eql('rgb(255, 136, 0)')
 })
 
-test('clears every todo with Clear all', async t => {
+test('removes only the done todos with Clear done', async t => {
     await addTodo(t, 'Plain todo')
     await addTodo(t, 'Overdue todo', await getDateString(-1))
     await addTodo(t, 'Done todo')
@@ -174,18 +174,20 @@ test('clears every todo with Clear all', async t => {
 
     await t
         .expect(todoItems.count).eql(3)
-        .click(clearAllButton)
-        .expect(todoItems.count).eql(0)
+        .click(clearDoneButton)
+        .expect(todoItems.count).eql(2)
+        .expect(todoItems.nth(0).find('.todo-text').innerText).eql('Plain todo')
+        .expect(todoItems.nth(1).find('.todo-text').innerText).eql('Overdue todo')
+        .expect(todoItems.nth(1).hasClass('overdue')).ok()
 })
 
-test('adds new todos after Clear all', async t => {
-    await addTodo(t, 'Old todo')
-    await t.click(clearAllButton)
-    await addTodo(t, 'New todo')
+test('keeps every todo when none are done', async t => {
+    await addTodo(t, 'One')
+    await addTodo(t, 'Two')
 
     await t
-        .expect(todoItems.count).eql(1)
-        .expect(todoItems.nth(0).find('.todo-text').innerText).eql('New todo')
+        .click(clearDoneButton)
+        .expect(todoItems.count).eql(2)
 })
 
 test('sorts todos by status: in progress, then overdue, then done', async t => {
